@@ -1,0 +1,36 @@
+﻿@model TaskManagerAPI.Models.ProjectViewModel
+
+<h2>Edit Project</h2>
+
+@if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+{
+    <div class="alert alert-danger">@ViewBag.ErrorMessage</div>
+}
+
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+
+    <!-- Скрытое поле: Id проекта, который редактируем -->
+    <input asp-for="Id" type="hidden" />
+
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <!-- Поле для ввода OwnerId (UserId) вручную, как в Create -->
+    <div class="form-group">
+        <label asp-for="OwnerId">Owner (UserId)</label>
+        <input asp-for="OwnerId" class="form-control" />
+        <span asp-validation-for="OwnerId" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>

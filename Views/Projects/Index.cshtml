@@ -1,0 +1,40 @@
+﻿@model IEnumerable<TaskManagerAPI.Entities.Project>
+
+@{
+    ViewData["Title"] = "Projects List";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-success">Create New Project</a>
+</p>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>CreatedAt</th>
+            <th>Owner</th>
+            <th>Edit</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var proj in Model)
+        {
+            <tr>
+                <td>@proj.Id</td>
+                <td>@proj.Name</td>
+                <td>@proj.Description</td>
+                <td>@proj.CreatedAt</td>
+                <td>@proj.Owner?.Username</td>
+                <td>
+                    @* Пример ссылки на Edit, если нужно *@
+                    <a asp-action="Edit" asp-route-id="@proj.Id" class="btn btn-warning btn-sm">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

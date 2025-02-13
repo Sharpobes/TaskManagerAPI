@@ -1,0 +1,91 @@
+﻿@model TaskManagerAPI.Models.TaskViewModel
+
+@{
+    ViewData["Title"] = "Create New Task";
+}
+
+<h2>Create New Task</h2>
+
+<!-- Форма для создания задачи -->
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <!-- Поля задачи (Title, Description, ProjectId, ...), как обычно -->
+    <div class="form-group">
+        <label asp-for="Title"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <!-- Пример: ProjectId, AssignedToId и т.п. (можно сделать аналогично) -->
+    <div class="form-group">
+        <label asp-for="ProjectId"></label>
+        <input asp-for="ProjectId" class="form-control" />
+        <span asp-validation-for="ProjectId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="AssignedToId"></label>
+        <input asp-for="AssignedToId" class="form-control" />
+        <span asp-validation-for="AssignedToId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Deadline"></label>
+        <input asp-for="Deadline" class="form-control" type="date" />
+        <span asp-validation-for="Deadline" class="text-danger"></span>
+    </div>
+
+    <!-- =============== БЛОК С КНОПКАМИ СТАТУСОВ =============== -->
+    <div class="form-group">
+        <label>Choose Status:</label>
+        <div>
+            @* Скрытое поле, чтобы хранить выбранный StatusId *@
+            <input asp-for="StatusId" type="hidden" id="SelectedStatusId" />
+
+            @* Рисуем кнопки, исходя из ViewBag.StatusList *@
+            @if (ViewBag.StatusList != null)
+            {
+                foreach (var status in ViewBag.StatusList)
+                {
+                    <button type="button"
+                            class="btn btn-outline-primary m-1"
+                            onclick="selectStatus('@status.Id')">
+                        @status.Name
+                    </button>
+                }
+            }
+        </div>
+        <span asp-validation-for="StatusId" class="text-danger"></span>
+    </div>
+
+    <!-- Кнопка создания задачи -->
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>
+
+<!-- Скрипт для установки значения StatusId при нажатии на кнопку -->
+<script>
+    function selectStatus(statusId) {
+        // Найдём скрытый input
+        var hiddenField = document.getElementById("SelectedStatusId");
+        hiddenField.value = statusId;
+        console.log("Selected status:", statusId);
+    }
+</script>
+
+<!-- Для отладки ошибок валидации -->
+<div>
+    <h4>Errors:</h4>
+    <ul>
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <li>@error.ErrorMessage</li>
+        }
+    </ul>
+</div>

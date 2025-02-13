@@ -1,0 +1,82 @@
+﻿@model TaskManagerAPI.Models.TaskViewModel
+
+@{
+    ViewData["Title"] = "Edit Task";
+}
+
+<h2>Edit Task</h2>
+
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+
+    <!-- Скрытое поле с Id, чтобы знать, какую задачу редактируем -->
+    <input asp-for="Id" type="hidden" />
+
+    <!-- Title -->
+    <div class="form-group">
+        <label asp-for="Title"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <!-- Description -->
+    <div class="form-group">
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <!-- Проект -->
+    <div class="form-group">
+        <label asp-for="ProjectId"></label>
+        <input asp-for="ProjectId" class="form-control" />
+        <span asp-validation-for="ProjectId" class="text-danger"></span>
+    </div>
+
+    <!-- AssignedTo -->
+    <div class="form-group">
+        <label asp-for="AssignedToId"></label>
+        <input asp-for="AssignedToId" class="form-control" />
+        <span asp-validation-for="AssignedToId" class="text-danger"></span>
+    </div>
+
+    <!-- Deadline -->
+    <div class="form-group">
+        <label asp-for="Deadline"></label>
+        <input asp-for="Deadline" class="form-control" type="date" />
+        <span asp-validation-for="Deadline" class="text-danger"></span>
+    </div>
+
+    <!-- Блок с кнопками статусов -->
+    <div class="form-group">
+        <label>Change Status:</label>
+        <div>
+            <!-- Скрытое поле, в которое сохраняем выбранный статус -->
+            <input asp-for="StatusId" type="hidden" id="SelectedStatusId" />
+
+            @if (ViewBag.StatusList != null)
+            {
+                foreach (var status in ViewBag.StatusList)
+                {
+                    <button type="button"
+                            class="btn btn-outline-primary m-1"
+                            onclick="selectStatus('@status.Id')">
+                        @status.Name
+                    </button>
+                }
+            }
+        </div>
+        <span asp-validation-for="StatusId" class="text-danger"></span>
+    </div>
+
+    <!-- Кнопка Сохранить -->
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="TasksList" class="btn btn-secondary">Cancel</a>
+</form>
+
+<script>
+    function selectStatus(statusId) {
+        document.getElementById("SelectedStatusId").value = statusId;
+        console.log("Selected status:", statusId);
+    }
+</script>
