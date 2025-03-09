@@ -17,10 +17,12 @@ namespace TaskManagerAPI.Controllers
     public class AuthController : Controller
     {
         private readonly TaskApiContext _context;
+        private readonly ILogger<AuthController> _logger;
 
-        public AuthController(TaskApiContext context)
+        public AuthController(TaskApiContext context, ILogger<AuthController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: /Auth/Login
@@ -40,8 +42,8 @@ namespace TaskManagerAPI.Controllers
                 {
                     foreach (var error in state.Value.Errors)
                     {
-                        // Здесь можно записать в лог или вывести отладочную информацию
-                        Console.WriteLine($"Поле {state.Key}: {error.ErrorMessage}");
+                        _logger.LogWarning("Поле {Field}: {Error}", state.Key, error.ErrorMessage);
+                        System.Diagnostics.Trace.TraceWarning("Поле {0}: {1}", state.Key, error.ErrorMessage);
                     }
                 }
                 return View(model);
@@ -94,10 +96,17 @@ namespace TaskManagerAPI.Controllers
         {
             if (!ModelState.IsValid)
             {
+                foreach (var state in ModelState)
+                {
+                    foreach (var error in state.Value.Errors)
+                    {
+                        _logger.LogWarning("Поле {Field}: {Error}", state.Key, error.ErrorMessage);
+                        System.Diagnostics.Trace.TraceWarning("Поле {0}: {1}", state.Key, error.ErrorMessage);
+                    }
+                }
                 return View(model);
             }
 
-            // Проверяем, существует ли уже пользователь с таким именем
             var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Username == model.Username);
             if (existingUser != null)
             {
@@ -105,18 +114,15 @@ namespace TaskManagerAPI.Controllers
                 return View(model);
             }
 
-            // Проверяем, совпадают ли пароли (если поле ConfirmPassword есть в модели)
             if (model.Password != model.ConfirmPassword)
             {
                 ModelState.AddModelError("ConfirmPassword", "Пароли не совпадают.");
                 return View(model);
             }
 
-            // Хэширование пароля
             string intermediateHash = MD5Hash.ComputeMd5Hash(model.Password);
             string hashedPassword = Convert.ToBase64String(MD5Hash.ComputeMd5HashBytes(intermediateHash));
 
-            // Создаём нового пользователя
             var newUser = new User
             {
                 Username = model.Username,
@@ -128,7 +134,6 @@ namespace TaskManagerAPI.Controllers
             _context.Users.Add(newUser);
             await _context.SaveChangesAsync();
 
-            // Перенаправляем на страницу входа после успешной регистрации
             return RedirectToAction("Login", "Auth");
         }
 
