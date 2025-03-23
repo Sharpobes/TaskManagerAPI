@@ -21,11 +21,13 @@ namespace TaskManagerAPI.Controllers
     {
         private readonly TaskApiContext _context;
         private readonly TaskStateService _stateService;
+        private readonly ILogger<TasksController> _logger;
 
-        public TasksController(TaskApiContext context)
+        public TasksController(TaskApiContext context, ILogger<TasksController> logger)
         {
             _context = context;
             _stateService = new TaskStateService();
+            _logger = logger;
         }
 
         //[HttpGet]
@@ -52,28 +54,25 @@ namespace TaskManagerAPI.Controllers
                 AssignedToId = t.AssignedToId,
                 Deadline = t.Deadline
             }).ToList();
-
             return View(taskViewModels);
         }
-        [HttpGet]
-        public async Task<IActionResult> CreateAsync()
-        {
-            var statuses = await _context.TaskStatuses.ToListAsync();
+        //[HttpGet]
+        //public async Task<IActionResult> CreateAsync()
+        //{
+        //    var statuses = await _context.TaskStatuses.ToListAsync();
 
-            // Для удобства передадим их в ViewBag
-            // (или используйте собственную модель, если предпочитаете)
-            ViewBag.StatusList = statuses;
+        //    // Для удобства передадим их в ViewBag
+        //    // (или используйте собственную модель, если предпочитаете)
+        //    ViewBag.StatusList = statuses;
 
-            // Возвращаем пустую модель
-            return View(new TaskViewModel());
-        }
+        //    // Возвращаем пустую модель
+        //    return View(new TaskViewModel());
+        //}
         [HttpPost]
         public async Task<IActionResult> Create(TaskViewModel taskViewModel)
         {
             if (!ModelState.IsValid)
             {
-                // Если валидация не пройдена, надо снова передать список статусов,
-                // чтобы при перезагрузке формы кнопки были на месте
                 ViewBag.StatusList = await _context.TaskStatuses.ToListAsync();
                 return View(taskViewModel);
             }
@@ -92,7 +91,7 @@ namespace TaskManagerAPI.Controllers
             _context.Tasks.Add(task);
             await _context.SaveChangesAsync();
 
-            // Переходим на список задач
+            _logger.LogInformation("Пользователь создал задачу");
             return RedirectToAction("TasksList");
         }
         [HttpGet]

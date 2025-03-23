@@ -12,15 +12,16 @@ namespace TaskManagerAPI.Controllers
     {
         private readonly TaskApiContext _context;
         private readonly HttpClient _httpClient;
+        private readonly ILogger<ProjectsController> _logger;
 
         // В конструкторе регистрируем контекст базы (для получения списка проектов)
         // и HttpClient (для создания проекта через API, если нужно).
-        public ProjectsController(TaskApiContext context, HttpClient httpClient)
+        public ProjectsController(TaskApiContext context, HttpClient httpClient, ILogger<ProjectsController> logger)
         {
             _context = context;
             _httpClient = httpClient;
             _httpClient.BaseAddress = new Uri("https://localhost:7004");
-            // Адрес может быть вынесен в конфигурацию (appsettings.json) или Environment Variables
+            _logger = logger;
         }
         [HttpGet]
         public async Task<IActionResult> Index()
@@ -44,8 +45,6 @@ namespace TaskManagerAPI.Controllers
         {
             if (!ModelState.IsValid)
             {
-                // Перезаполнение ViewBag, если у вас есть выпадающие списки
-                // ...
                 return View(model);
             }
 
@@ -60,8 +59,7 @@ namespace TaskManagerAPI.Controllers
 
             _context.Projects.Add(newProject);
             await _context.SaveChangesAsync();
-
-            // Перенаправляем на список проектов
+            _logger.LogInformation("Пользователь создал проект");
             return RedirectToAction("Index");
         }
 

@@ -12,11 +12,11 @@ using System.Text;
 using System.Net;
 using Serilog;
 using Task = System.Threading.Tasks.Task;
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Debug()
-    .WriteTo.Console()
-    .WriteTo.File("Logs/log.txt", rollingInterval: RollingInterval.Day)
-    .CreateLogger();
+//Log.Logger = new LoggerConfiguration()
+//    .MinimumLevel.Debug()
+//    .WriteTo.Console()
+//    .WriteTo.File("Logs/log.txt", rollingInterval: RollingInterval.Day)
+//    .CreateLogger();
 var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog();
 builder.Logging.ClearProviders();
@@ -29,6 +29,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient<ProjectsController>();
 builder.Services.AddAuthorization();
+builder.Logging.AddEventLog(options =>
+{
+    options.SourceName = "TaskApi";
+    options.LogName = "Application";
+});
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

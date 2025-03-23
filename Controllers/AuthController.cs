@@ -52,6 +52,7 @@ namespace TaskManagerAPI.Controllers
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == model.Username);
             if (user == null)
             {
+                _logger.LogWarning("Попытка входа с несуществующим именем пользователя: {Username}", model.Username);
                 ModelState.AddModelError(string.Empty, "Неверное имя пользователя или пароль");
                 return View(model);
             }
@@ -61,6 +62,7 @@ namespace TaskManagerAPI.Controllers
 
             if (user.PasswordHash != hashedPassword)
             {
+                _logger.LogWarning("Неудачная попытка входа для пользователя: {Username}", model.Username);
                 ModelState.AddModelError(string.Empty, "Неверное имя пользователя или пароль");
                 return View(model);
             }
@@ -81,7 +83,7 @@ namespace TaskManagerAPI.Controllers
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(claimsIdentity),
                 authProperties);
-
+            _logger.LogInformation("Пользователь {Username} успешно вошел в систему", user.Username);
             return RedirectToAction("TasksList", "Tasks");
         }
         [HttpGet]
